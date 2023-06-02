@@ -1,0 +1,15 @@
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/bin/Debug/net7.0/UkrainePOI-RadiusSearch
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/bin/Debug/net7.0/UkrainePOI-RadiusSearch.deps.json
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/bin/Debug/net7.0/UkrainePOI-RadiusSearch.runtimeconfig.json
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/bin/Debug/net7.0/UkrainePOI-RadiusSearch.dll
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/bin/Debug/net7.0/UkrainePOI-RadiusSearch.pdb
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.csproj.AssemblyReference.cache
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.GeneratedMSBuildEditorConfig.editorconfig
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.AssemblyInfoInputs.cache
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.AssemblyInfo.cs
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.csproj.CoreCompileInputs.cache
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.dll
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/refint/UkrainePOI-RadiusSearch.dll
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.pdb
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/UkrainePOI-RadiusSearch.genruntimeconfig.cache
+/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/obj/Debug/net7.0/ref/UkrainePOI-RadiusSearch.dll
