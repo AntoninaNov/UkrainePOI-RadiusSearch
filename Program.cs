@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿/*
+using System.Diagnostics;
 using System.Globalization;
 
 class Program
@@ -18,7 +19,7 @@ class Program
         string radiusInput = Console.ReadLine().Replace(',', '.');
         double radius = Convert.ToDouble(radiusInput, CultureInfo.InvariantCulture);
 
-        string filePath = @"/Users/antoninanovak/RiderProjects/UkrainePOI-RadiusSearch/ukraine_poi.csv";
+        string filePath = @"/Users/vladshcherbyna/RiderProjects/UkrainePOI-RadiusSearch/ukraine_poi.csv";
 
         List<string[]> points = new List<string[]>();
         using (var sr = new StreamReader(filePath))
@@ -74,3 +75,184 @@ class Program
 }
 
 // KSE: 50,45836535137246, 30,42989186016101
+*/
+
+
+using System.Globalization;
+
+
+class Program
+{
+    static void Main()
+    {
+        string filePath = @"/Users/vladshcherbyna/RiderProjects/UkrainePOI-RadiusSearch/ukraine_poi.csv";
+
+        List<Point> points = ReadPointsFromFile(filePath);
+
+        double minLatitude = double.MaxValue;
+        double maxLatitude = double.MinValue;
+        double minLongitude = double.MaxValue;
+        double maxLongitude = double.MinValue;
+
+        foreach (Point point in points)
+        {
+            if (point.Latitude < minLatitude)
+                minLatitude = point.Latitude;
+            if (point.Latitude > maxLatitude)
+                maxLatitude = point.Latitude;
+
+            if (point.Longitude < minLongitude)
+                minLongitude = point.Longitude;
+            if (point.Longitude > maxLongitude)
+                maxLongitude = point.Longitude;
+        }
+
+        Rectangle boundingRectangle = new Rectangle(minLatitude, maxLatitude, minLongitude, maxLongitude);
+        Node root = BuildTree(points, boundingRectangle, SplitAxis.Latitude);
+        Console.WriteLine("Binary Tree Construction Completed");
+    }
+
+    static List<Point> ReadPointsFromFile(string filePath)
+    {
+        List<Point> points = new List<Point>();
+
+        using (var sr = new StreamReader(filePath))
+        {
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                string[] record = line.Split(';');
+                if (record.Length >= 2)
+                {
+                    double latitude;
+                    if (double.TryParse(record[0].Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out latitude))
+                    {
+                        double longitude;
+                        if (double.TryParse(record[1].Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out longitude))
+                        {
+                            Point point = new Point(latitude, longitude);
+                            points.Add(point);
+                        }
+                    }
+                }
+            }
+        }
+
+        return points;
+    }
+
+    static Node BuildTree(List<Point> points, Rectangle boundingRectangle, SplitAxis splitAxis)
+    {
+        if (points.Count <= 100)
+        {
+            // Create a leaf node
+            return new Node(boundingRectangle, points);
+        }
+
+        List<Point> sortedPoints;
+        Rectangle leftRectangle;
+        Rectangle rightRectangle;
+
+        if (splitAxis == SplitAxis.Latitude)
+        {
+            sortedPoints = SortPoints(points, PointComparer.ByLatitude);
+            double medianLatitude = sortedPoints[sortedPoints.Count / 2].Latitude;
+            leftRectangle = new Rectangle(boundingRectangle.MinLatitude, medianLatitude, boundingRectangle.MinLongitude, boundingRectangle.MaxLongitude);
+            rightRectangle = new Rectangle(medianLatitude, boundingRectangle.MaxLatitude, boundingRectangle.MinLongitude, boundingRectangle.MaxLongitude);
+        }
+        else
+        {
+            sortedPoints = SortPoints(points, PointComparer.ByLongitude);
+            double medianLongitude = sortedPoints[sortedPoints.Count / 2].Longitude;
+            leftRectangle = new Rectangle(boundingRectangle.MinLatitude, boundingRectangle.MaxLatitude, boundingRectangle.MinLongitude, medianLongitude);
+            rightRectangle = new Rectangle(boundingRectangle.MinLatitude, boundingRectangle.MaxLatitude, medianLongitude, boundingRectangle.MaxLongitude);
+        }
+
+        SplitAxis nextSplitAxis = (splitAxis == SplitAxis.Latitude) ? SplitAxis.Longitude : SplitAxis.Latitude;
+
+        Node node = new Node(boundingRectangle);
+        node.Left = BuildTree(sortedPoints.GetRange(0, sortedPoints.Count / 2), leftRectangle, nextSplitAxis);
+        node.Right = BuildTree(sortedPoints.GetRange(sortedPoints.Count / 2, sortedPoints.Count - sortedPoints.Count / 2), rightRectangle, nextSplitAxis);
+
+        return node;
+    }
+
+    static List<Point> SortPoints(List<Point> points, IComparer<Point> comparer)
+    {
+        List<Point> sortedPoints = new List<Point>(points);
+        sortedPoints.Sort(comparer);
+        return sortedPoints;
+    }
+}
+
+enum SplitAxis
+{
+    Latitude,
+    Longitude
+}
+
+class Point
+{
+    public double Latitude { get; }
+    public double Longitude { get; }
+
+    public Point(double latitude, double longitude)
+    {
+        Latitude = latitude;
+        Longitude = longitude;
+    }
+}
+
+class Rectangle
+{
+    public double MinLatitude { get; }
+    public double MaxLatitude { get; }
+    public double MinLongitude { get; }
+    public double MaxLongitude { get; }
+
+    public Rectangle(double minLatitude, double maxLatitude, double minLongitude, double maxLongitude)
+    {
+        MinLatitude = minLatitude;
+        MaxLatitude = maxLatitude;
+        MinLongitude = minLongitude;
+        MaxLongitude = maxLongitude;
+    }
+}
+
+class Node
+{
+    public Rectangle BoundingRectangle { get; }
+    public List<Point> Points { get; }
+    public Node Left { get; set; }
+    public Node Right { get; set; }
+
+    public Node(Rectangle boundingRectangle)
+    {
+        BoundingRectangle = boundingRectangle;
+        Points = new List<Point>();
+    }
+
+    public Node(Rectangle boundingRectangle, List<Point> points)
+    {
+        BoundingRectangle = boundingRectangle;
+        Points = points;
+    }
+}
+
+class PointComparer : IComparer<Point>
+{
+    private readonly SplitAxis splitAxis;
+
+    private PointComparer(SplitAxis splitAxis)
+    {
+        this.splitAxis = splitAxis;
+    }
+
+    public int Compare(Point x, Point y)
+    {
+        return (splitAxis == SplitAxis.Latitude) ? x.Latitude.CompareTo(y.Latitude) : x.Longitude.CompareTo(y.Longitude);
+    }
+
+    public static readonly PointComparer ByLatitude = new PointComparer(SplitAxis.Latitude);
+    public static readonly PointComparer ByLongitude = new PointComparer(SplitAxis.Longitude);
+}
