@@ -110,6 +110,19 @@ class Program
         Rectangle boundingRectangle = new Rectangle(minLatitude, maxLatitude, minLongitude, maxLongitude);
         Node root = BuildTree(points, boundingRectangle, SplitAxis.Latitude);
         Console.WriteLine("Binary Tree Construction Completed");
+        
+        Point newPoint = new Point(48.56847574, 30.1485768439);
+        root.Insert(newPoint);
+        Console.WriteLine("New point inserted: Latitude={0}, Longitude={1}", newPoint.Latitude, newPoint.Longitude);
+
+        // Видалення точки
+        bool removed = root.Remove(newPoint);
+        if (removed)
+            Console.WriteLine("Point removed: Latitude={0}, Longitude={1}", newPoint.Latitude, newPoint.Longitude);
+        else
+            Console.WriteLine("Point not found: Latitude={0}, Longitude={1}", newPoint.Latitude, newPoint.Longitude);
+
+        Console.ReadLine();
     }
 
     static List<Point> ReadPointsFromFile(string filePath)
@@ -217,6 +230,12 @@ class Rectangle
         MinLongitude = minLongitude;
         MaxLongitude = maxLongitude;
     }
+    
+    public bool Contains(Point point)
+    {
+        return point.Latitude >= MinLatitude && point.Latitude <= MaxLatitude &&
+               point.Longitude >= MinLongitude && point.Longitude <= MaxLongitude;
+    }
 }
 
 class Node
@@ -236,6 +255,56 @@ class Node
     {
         BoundingRectangle = boundingRectangle;
         Points = points;
+    }
+    
+    public Node Insert(Point point)
+    {
+        // Якщо поточний вузол є листом, просто додаємо нову точку до списку точок у вузлі
+        if (Left == null && Right == null)
+        {
+            Points.Add(point);
+            return this;
+        }
+
+        // Визначаємо в який підвузол має бути вставлена точка
+        if (Left != null && Left.BoundingRectangle.Contains(point))
+        {
+            Left = Left.Insert(point);
+        }
+        else if (Right != null && Right.BoundingRectangle.Contains(point))
+        {
+            Right = Right.Insert(point);
+        }
+        else
+        {
+            // Якщо точка не підпадає під жоден підвузол, вона залишається у поточному вузлі
+            Points.Add(point);
+        }
+
+        return this;
+    }
+    
+    public bool Remove(Point point)
+    {
+        bool removed = Points.Remove(point);
+
+        if (removed)
+            return true;
+
+        if (Left != null && Left.BoundingRectangle.Contains(point))
+        {
+            removed = Left.Remove(point);
+            if (removed && Left.Points.Count == 0)
+                Left = null;
+        }
+        else if (Right != null && Right.BoundingRectangle.Contains(point))
+        {
+            removed = Right.Remove(point);
+            if (removed && Right.Points.Count == 0)
+                Right = null;
+        }
+
+        return removed;
     }
 }
 
